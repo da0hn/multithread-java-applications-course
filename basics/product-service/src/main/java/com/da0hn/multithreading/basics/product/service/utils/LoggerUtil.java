@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LoggerUtil {
 
-  public static void log(final String message) {
+  public static void log(final Object message) {
     System.out.println("[" + Thread.currentThread().getName() + "] - " + message);
   }
 
