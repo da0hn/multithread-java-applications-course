@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>basics</module>
+        <module>commons</module>
     </modules>
 
     <properties>
@@ -21,6 +22,7 @@
         <junit-jupiter.version>5.9.2</junit-jupiter.version>
         <assertj-core.version>3.24.2</assertj-core.version>
         <mockito-core.version>5.2.0</mockito-core.version>
+        <!-- https://stackoverflow.com/questions/45598007/properties-in-parent-definition-are-prohibited-in-the-intellij-maven-on-my-mac-o -->
         <revision>1.0.0</revision>
     </properties>
 
@@ -51,6 +53,12 @@
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito-core.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.da0hn.multithreading</groupId>
+                <artifactId>commons</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

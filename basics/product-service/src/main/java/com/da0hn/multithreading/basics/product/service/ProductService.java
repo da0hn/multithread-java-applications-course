@@ -1,7 +1,7 @@
 package com.da0hn.multithreading.basics.product.service;
 
 import com.da0hn.multithreading.basics.product.service.domain.Product;
-import com.da0hn.multithreading.basics.product.service.utils.CommonUtil;
+import com.da0hn.multithreading.commons.utils.CommonUtil;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor

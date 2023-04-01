@@ -1,4 +1,4 @@
-package com.da0hn.multithreading.basics.product.service.utils;
+package com.da0hn.multithreading.commons.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

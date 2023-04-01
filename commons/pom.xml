@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.da0hn.multithreading</groupId>
-        <artifactId>basics</artifactId>
+        <artifactId>multithreading-applications-course</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>product-service</artifactId>
-
+    <artifactId>commons</artifactId>
+    <version>${revision}</version>
 
     <dependencies>
         <dependency>
@@ -21,11 +21,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.da0hn.multithreading</groupId>
-            <artifactId>commons</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>

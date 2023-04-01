@@ -1,6 +1,7 @@
 package com.da0hn.multithreading.basics.product.service;
 
-import com.da0hn.multithreading.basics.product.service.utils.LoggerUtil;
+
+import com.da0hn.multithreading.commons.utils.LoggerUtil;
 
 public class ProductServiceApplication {
 

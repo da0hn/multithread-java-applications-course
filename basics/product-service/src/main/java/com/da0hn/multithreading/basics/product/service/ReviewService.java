@@ -2,7 +2,7 @@ package com.da0hn.multithreading.basics.product.service;
 
 
 import com.da0hn.multithreading.basics.product.service.domain.Review;
-import com.da0hn.multithreading.basics.product.service.utils.CommonUtil;
+import com.da0hn.multithreading.commons.utils.CommonUtil;
 
 public class ReviewService {
 
