@@ -15,6 +15,7 @@
     <modules>
         <module>product-service</module>
         <module>fork-join</module>
+        <module>checkout-service</module>
     </modules>
 
 
