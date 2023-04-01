@@ -6,7 +6,11 @@
 
     <groupId>com.da0hn.multithreading</groupId>
     <artifactId>multithreading-applications-course</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>basics</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -17,6 +21,7 @@
         <junit-jupiter.version>5.9.2</junit-jupiter.version>
         <assertj-core.version>3.24.2</assertj-core.version>
         <mockito-core.version>5.2.0</mockito-core.version>
+        <revision>1.0.0</revision>
     </properties>
 
     <dependencies>
