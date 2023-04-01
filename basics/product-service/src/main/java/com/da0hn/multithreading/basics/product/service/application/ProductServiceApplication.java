@@ -1,9 +1,12 @@
-package com.da0hn.multithreading.basics.product.service;
+package com.da0hn.multithreading.basics.product.service.application;
 
 
+import com.da0hn.multithreading.basics.product.service.ProductInfoService;
+import com.da0hn.multithreading.basics.product.service.ProductService;
+import com.da0hn.multithreading.basics.product.service.ReviewService;
 import com.da0hn.multithreading.commons.utils.LoggerUtil;
 
-public class ProductServiceApplication {
+public final class ProductServiceApplication {
 
   public static void main(final String[] args) {
     final var productInfoService = new ProductInfoService();
