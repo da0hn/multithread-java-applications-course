@@ -30,6 +30,7 @@ public final class CommonUtil {
   public static void timeElapsed() {
     stopWatch.stop();
     LoggerUtil.log("Total time elapsed " + stopWatch.getTime() + "ms");
+    stopWatch.reset();
   }
 
   public static void resetTimer() {
