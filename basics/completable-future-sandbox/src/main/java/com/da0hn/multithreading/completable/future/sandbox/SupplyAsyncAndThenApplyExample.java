@@ -19,4 +19,9 @@ public final class SupplyAsyncAndThenApplyExample {
     LoggerUtil.log("Done!");
   }
 
+  public CompletableFuture<String> helloWorld(final HelloWorldService service) {
+    return CompletableFuture.supplyAsync(service::helloWorld)
+      .thenApply(String::toUpperCase);
+  }
+
 }
