@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 
 import java.util.concurrent.CompletableFuture;
 
-public final class AsyncSupplyExample {
+public final class SupplyAsyncExample {
 
   @SneakyThrows
   public static void main(final String[] args) {
