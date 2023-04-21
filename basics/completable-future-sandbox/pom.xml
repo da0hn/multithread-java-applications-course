@@ -5,19 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.da0hn.multithreading</groupId>
-        <artifactId>multithreading-applications-course</artifactId>
+        <artifactId>basics</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>basics</artifactId>
-    <version>${revision}</version>
-    <packaging>pom</packaging>
-    <modules>
-        <module>product-service</module>
-        <module>fork-join</module>
-        <module>checkout-service</module>
-        <module>completable-future-sandbox</module>
-    </modules>
+    <artifactId>completable-future-sandbox</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.da0hn.multithreading</groupId>
+            <artifactId>commons</artifactId>
+        </dependency>
+    </dependencies>
 
 
 </project>
