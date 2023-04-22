@@ -2,7 +2,7 @@ package com.da0hn.multithreading.basics.product.service.domain;
 
 import lombok.Builder;
 
-@Builder
+@Builder(toBuilder = true)
 public record ProductOption(
     Long productOptionId,
     String size,
