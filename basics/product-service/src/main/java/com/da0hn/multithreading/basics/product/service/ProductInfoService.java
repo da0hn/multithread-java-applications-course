@@ -22,6 +22,18 @@ public class ProductInfoService {
         .size("128GB")
         .color("Black")
         .price(6999.99)
+        .build(),
+      ProductOption.builder()
+        .productOptionId(3L)
+        .size("128GB")
+        .color("Black")
+        .price(6999.99)
+        .build(),
+      ProductOption.builder()
+        .productOptionId(4L)
+        .size("128GB")
+        .color("Black")
+        .price(6999.99)
         .build()
     );
     return ProductInfo.builder()

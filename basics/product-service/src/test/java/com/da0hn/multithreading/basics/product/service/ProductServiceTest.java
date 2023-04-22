@@ -63,4 +63,23 @@ class ProductServiceTest {
       Assertions.assertThat(option.inventory())
     );
   }
+
+  @Test
+  @DisplayName("Should retrieve product details with inventory using CompletableFuture (Performance Improved)")
+  void test4() {
+
+    final var productInfoService = new ProductInfoService();
+    final var reviewService = new ReviewService();
+    final var syncInventoryService = new SyncInventoryService();
+    final var asyncInventoryService = new AsyncInventoryService();
+    final var productService = new ProductServiceCompletableFutureImpl(productInfoService, reviewService, syncInventoryService, asyncInventoryService);
+    final var product = productService.asyncRetrieveProductDetailsWithInventory("05041620-5731-4b7e-a0d9-1891c5800382");
+
+    Assertions.assertThat(product).isNotNull();
+    Assertions.assertThat(product.productInfo().productOptions()).isNotEmpty();
+    Assertions.assertThat(product.review()).isNotNull();
+    product.productInfo().productOptions().forEach(option ->
+      Assertions.assertThat(option.inventory())
+    );
+  }
 }

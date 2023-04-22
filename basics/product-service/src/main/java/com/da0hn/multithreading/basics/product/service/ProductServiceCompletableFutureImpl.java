@@ -53,12 +53,12 @@ public class ProductServiceCompletableFutureImpl {
 
     final var asyncRetrieveProductInfo =
       CompletableFuture.supplyAsync(() -> this.productInfoService.retrieveProductInfo(productId))
-      .thenApply(productInfo -> {
-        final var productOptions = this.syncUpdateInventory(productInfo); // blocking call
-        return productInfo.toBuilder()
-          .productOptions(productOptions)
-          .build();
-      });
+        .thenApply(productInfo -> {
+          final var productOptions = this.syncUpdateInventory(productInfo); // blocking call
+          return productInfo.toBuilder()
+            .productOptions(productOptions)
+            .build();
+        });
 
     final var product = CompletableFuture.supplyAsync(() -> Product.builder().productId(productId))
       .thenCombine(asyncRetrieveReview, Product.ProductBuilder::review)
@@ -68,6 +68,41 @@ public class ProductServiceCompletableFutureImpl {
 
     CommonUtil.timeElapsed();
     return product;
+  }
+
+
+  public Product asyncRetrieveProductDetailsWithInventory(final String productId) {
+    CommonUtil.startTimer();
+    final var asyncRetrieveReview = CompletableFuture.supplyAsync(() -> this.reviewService.retrieveReview(productId));
+
+    final var asyncRetrieveProductInfo =
+      CompletableFuture.supplyAsync(() -> this.productInfoService.retrieveProductInfo(productId))
+        .thenApplyAsync(productInfo -> {
+          final var productOptions = this.asyncUpdateInventory(productInfo); // non blocking call
+          return productInfo.toBuilder()
+            .productOptions(productOptions)
+            .build();
+        });
+
+    final var product = CompletableFuture.supplyAsync(() -> Product.builder().productId(productId))
+      .thenCombine(asyncRetrieveReview, Product.ProductBuilder::review)
+      .thenCombine(asyncRetrieveProductInfo, Product.ProductBuilder::productInfo)
+      .thenApply(Product.ProductBuilder::build)
+      .join();
+
+    CommonUtil.timeElapsed();
+    return product;
+  }
+
+  private List<ProductOption> asyncUpdateInventory(final ProductInfo productInfo) {
+    final List<CompletableFuture<ProductOption>> updatedProductInfoList = productInfo.productOptions().stream()
+      .map(option -> CompletableFuture.supplyAsync( () -> this.syncInventoryService.addInventory(option))
+        .thenApply(inventory -> option.toBuilder().inventory(inventory).build()))
+      .toList();
+
+    return updatedProductInfoList.stream()
+      .map(CompletableFuture::join)
+      .toList();
   }
 
   private List<ProductOption> syncUpdateInventory(final ProductInfo productInfo) {
