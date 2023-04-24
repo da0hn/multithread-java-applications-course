@@ -3,7 +3,9 @@ package com.da0hn.multithreading.basics.product.service;
 import com.da0hn.multithreading.basics.product.service.domain.Product;
 import com.da0hn.multithreading.basics.product.service.domain.ProductInfo;
 import com.da0hn.multithreading.basics.product.service.domain.ProductOption;
+import com.da0hn.multithreading.basics.product.service.domain.Review;
 import com.da0hn.multithreading.commons.utils.CommonUtil;
+import com.da0hn.multithreading.commons.utils.LoggerUtil;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -16,7 +18,6 @@ public class ProductServiceCompletableFutureImpl {
   private final ProductInfoService productInfoService;
   private final ReviewService reviewService;
   private final SyncInventoryService syncInventoryService;
-  private final AsyncInventoryService asyncInventoryService;
 
 
   public Product syncRetrieveProductDetails(final String productId) {
@@ -73,7 +74,14 @@ public class ProductServiceCompletableFutureImpl {
 
   public Product asyncRetrieveProductDetailsWithInventory(final String productId) {
     CommonUtil.startTimer();
-    final var asyncRetrieveReview = CompletableFuture.supplyAsync(() -> this.reviewService.retrieveReview(productId));
+    final var asyncRetrieveReview = CompletableFuture.supplyAsync(() -> this.reviewService.retrieveReview(productId))
+      .exceptionally(e -> { // Catch exception and provide recovery value
+        LoggerUtil.log("Handled the Exception in reviewService: " + e.getMessage());
+        return Review.builder()
+          .numberOfReview(0)
+          .overallRating(0.0)
+          .build();
+      });
 
     final var asyncRetrieveProductInfo =
       CompletableFuture.supplyAsync(() -> this.productInfoService.retrieveProductInfo(productId))
@@ -96,7 +104,7 @@ public class ProductServiceCompletableFutureImpl {
 
   private List<ProductOption> asyncUpdateInventory(final ProductInfo productInfo) {
     final List<CompletableFuture<ProductOption>> updatedProductInfoList = productInfo.productOptions().stream()
-      .map(option -> CompletableFuture.supplyAsync( () -> this.syncInventoryService.addInventory(option))
+      .map(option -> CompletableFuture.supplyAsync(() -> this.syncInventoryService.addInventory(option))
         .thenApply(inventory -> option.toBuilder().inventory(inventory).build()))
       .toList();
 
