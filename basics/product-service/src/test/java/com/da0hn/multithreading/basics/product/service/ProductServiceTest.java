@@ -113,7 +113,29 @@ class ProductServiceTest {
     product.productInfo().productOptions().forEach(option ->
       Assertions.assertThat(option.inventory())
     );
+  }
 
+
+  @Test
+  @DisplayName("Should throw exception when fail to retrieve product detail")
+  void test6() {
+
+    final var productInfoService = Mockito.mock(ProductInfoService.class);
+    Mockito.doThrow(new RuntimeException("A runtime error"))
+      .when(productInfoService)
+      .retrieveProductInfo(anyString());
+
+    final var syncInventoryService = new SyncInventoryService();
+    final var reviewService = new ReviewService();
+    final var productService = new ProductServiceCompletableFutureImpl(
+      productInfoService,
+      reviewService,
+      syncInventoryService
+    );
+
+    Assertions.assertThatThrownBy(() -> productService.asyncRetrieveProductDetailsWithInventory("05041620-5731-4b7e-a0d9-1891c5800382"))
+      .isInstanceOf(RuntimeException.class)
+      .hasMessageContaining("A runtime error");
 
   }
 }

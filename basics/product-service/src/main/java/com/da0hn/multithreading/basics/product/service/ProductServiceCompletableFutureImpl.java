@@ -73,33 +73,42 @@ public class ProductServiceCompletableFutureImpl {
 
 
   public Product asyncRetrieveProductDetailsWithInventory(final String productId) {
-    CommonUtil.startTimer();
-    final var asyncRetrieveReview = CompletableFuture.supplyAsync(() -> this.reviewService.retrieveReview(productId))
-      .exceptionally(e -> { // Catch exception and provide recovery value
-        LoggerUtil.log("Handled the Exception in reviewService: " + e.getMessage());
-        return Review.builder()
-          .numberOfReview(0)
-          .overallRating(0.0)
-          .build();
-      });
-
-    final var asyncRetrieveProductInfo =
-      CompletableFuture.supplyAsync(() -> this.productInfoService.retrieveProductInfo(productId))
-        .thenApplyAsync(productInfo -> {
-          final var productOptions = this.asyncUpdateInventory(productInfo); // non blocking call
-          return productInfo.toBuilder()
-            .productOptions(productOptions)
+    try {
+      CommonUtil.startTimer();
+      final var asyncRetrieveReview = CompletableFuture.supplyAsync(() -> this.reviewService.retrieveReview(productId))
+        .exceptionally(e -> { // Catch exception and provide recovery value
+          LoggerUtil.log("Handled the Exception in reviewService: " + e.getMessage());
+          return Review.builder()
+            .numberOfReview(0)
+            .overallRating(0.0)
             .build();
         });
 
-    final var product = CompletableFuture.supplyAsync(() -> Product.builder().productId(productId))
-      .thenCombine(asyncRetrieveReview, Product.ProductBuilder::review)
-      .thenCombine(asyncRetrieveProductInfo, Product.ProductBuilder::productInfo)
-      .thenApply(Product.ProductBuilder::build)
-      .join();
+      final var asyncRetrieveProductInfo =
+        CompletableFuture.supplyAsync(() -> this.productInfoService.retrieveProductInfo(productId))
+          .thenApplyAsync(productInfo -> {
+            final var productOptions = this.asyncUpdateInventory(productInfo); // non blocking call
+            return productInfo.toBuilder()
+              .productOptions(productOptions)
+              .build();
+          });
 
-    CommonUtil.timeElapsed();
-    return product;
+      final var product = CompletableFuture.supplyAsync(() -> Product.builder().productId(productId))
+        .thenCombine(asyncRetrieveReview, Product.ProductBuilder::review)
+        .thenCombine(asyncRetrieveProductInfo, Product.ProductBuilder::productInfo)
+        .thenApply(Product.ProductBuilder::build)
+        .whenComplete((value, throwable) -> {
+          if(throwable == null) return;
+          LoggerUtil.log("Handle an exception for in productService: " + throwable.getMessage());
+        })
+        .join();
+
+      CommonUtil.timeElapsed();
+      return product;
+    } catch (final Exception e) {
+      CommonUtil.resetTimer();
+      throw new RuntimeException(e.getMessage());
+    }
   }
 
   private List<ProductOption> asyncUpdateInventory(final ProductInfo productInfo) {
