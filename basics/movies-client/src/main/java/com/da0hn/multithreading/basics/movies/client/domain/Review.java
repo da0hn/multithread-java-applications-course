@@ -4,6 +4,6 @@ public record Review(
   String reviewId,
   Long movieInfoId,
   String comment,
-  Double ratings
+  Double rating
 ) {
 }
