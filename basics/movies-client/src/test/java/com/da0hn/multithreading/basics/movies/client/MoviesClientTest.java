@@ -50,4 +50,30 @@ class MoviesClientTest {
   }
 
 
+  @Test
+  @DisplayName("Should asynchronous retrieve Movie Info by id")
+  void test2() {
+
+    final var moviesClient = new MoviesClient(this.webClient);
+
+    final var movie = moviesClient.asyncRetrieveMovie(1L);
+
+    final ThrowingConsumer<Movie> hasReviews = m -> Assertions.assertThat(m.reviews()).hasSize(1);
+    final ThrowingConsumer<Movie> hasMovieInfo = m -> Assertions.assertThat(m.info()).isNotNull();
+
+
+    Assertions.assertThat(movie)
+      .isNotNull()
+      .satisfies(hasReviews, hasMovieInfo);
+    Assertions.assertThat(movie)
+      .extracting(
+        m -> m.info().movieInfoId(),
+        m -> m.info().name(),
+        m -> m.info().year(),
+        m -> m.info().releaseDate()
+      )
+      .contains(1L, "Batman Begins", 2005, LocalDate.of(2005,06,15));
+
+  }
+
 }

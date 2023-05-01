@@ -3,12 +3,14 @@ package com.da0hn.multithreading.basics.movies.client;
 import com.da0hn.multithreading.basics.movies.client.domain.Movie;
 import com.da0hn.multithreading.basics.movies.client.domain.MovieInfo;
 import com.da0hn.multithreading.basics.movies.client.domain.Review;
+import com.da0hn.multithreading.commons.utils.CommonUtil;
 import com.da0hn.multithreading.commons.utils.LoggerUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @AllArgsConstructor
 public class MoviesClient {
@@ -16,15 +18,37 @@ public class MoviesClient {
   private final WebClient webClient;
 
   public Movie syncRetrieveMovie(final Long movieInfoId) {
+    CommonUtil.startTimer();
 
     final var movieInfo = this.syncInvokeMovieInfoService(movieInfoId);
     final var reviews = this.syncInvokeReviewService(movieInfoId);
 
-    return new Movie(
+    final var movie = new Movie(
       movieInfo,
       reviews
     );
+
+    CommonUtil.timeElapsed();
+
+    return movie;
   }
+
+
+  public Movie asyncRetrieveMovie(final Long movieInfoId) {
+    CommonUtil.startTimer();
+    final var movieInfo = CompletableFuture.supplyAsync(() -> this.syncInvokeMovieInfoService(movieInfoId));
+    final var reviews = CompletableFuture.supplyAsync(() -> this.syncInvokeReviewService(movieInfoId));
+
+    final var movie = CompletableFuture.supplyAsync(Movie::builder)
+      .thenCombine(movieInfo, Movie.MovieBuilder::info)
+      .thenCombine(reviews, Movie.MovieBuilder::reviews)
+      .thenApply(Movie.MovieBuilder::build)
+      .join();
+
+    CommonUtil.timeElapsed();
+    return movie;
+  }
+
 
   private MovieInfo syncInvokeMovieInfoService(final Long movieInfoId) {
     final String resourcePath = "/v1/movie_infos/{movieInfoId}";
