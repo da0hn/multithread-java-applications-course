@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,6 +34,16 @@ public class MoviesClient {
     return movie;
   }
 
+  public Movie syncUntimedRetrieveMovie(final Long movieInfoId) {
+    final var movieInfo = this.syncInvokeMovieInfoService(movieInfoId);
+    final var reviews = this.syncInvokeReviewService(movieInfoId);
+
+    return new Movie(
+      movieInfo,
+      reviews
+    );
+  }
+
 
   public Movie asyncRetrieveMovie(final Long movieInfoId) {
     CommonUtil.startTimer();
@@ -47,6 +58,39 @@ public class MoviesClient {
 
     CommonUtil.timeElapsed();
     return movie;
+  }
+
+  private CompletableFuture<Movie> retrieveFutureMovie(final Long movieInfoId) {
+    final var movieInfo = CompletableFuture.supplyAsync(() -> this.syncInvokeMovieInfoService(movieInfoId));
+    final var reviews = CompletableFuture.supplyAsync(() -> this.syncInvokeReviewService(movieInfoId));
+
+    return CompletableFuture.supplyAsync(Movie::builder)
+      .thenCombine(movieInfo, Movie.MovieBuilder::info)
+      .thenCombine(reviews, Movie.MovieBuilder::reviews)
+      .thenApply(Movie.MovieBuilder::build);
+  }
+
+  public List<Movie> asyncRetrieveMovies(final Collection<Long> movieInfoIds) {
+    CommonUtil.startTimer();
+
+    final var movies = movieInfoIds.stream()
+      .map(this::retrieveFutureMovie)
+      .map(CompletableFuture::join)
+      .toList();
+
+    CommonUtil.timeElapsed();
+    return movies;
+  }
+
+  public List<Movie> syncRetrieveMovies(final Collection<Long> movieInfoIds) {
+    CommonUtil.startTimer();
+
+    final var movies = movieInfoIds.stream()
+      .map(this::syncUntimedRetrieveMovie)
+      .toList();
+
+    CommonUtil.timeElapsed();
+    return movies;
   }
 
 

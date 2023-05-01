@@ -6,10 +6,12 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ThrowingConsumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @DisplayName("Sync/Async Movie REST client tests")
 class MoviesClientTest {
@@ -45,7 +47,7 @@ class MoviesClientTest {
         m -> m.info().year(),
         m -> m.info().releaseDate()
       )
-      .contains(1L, "Batman Begins", 2005, LocalDate.of(2005,06,15));
+      .contains(1L, "Batman Begins", 2005, LocalDate.of(2005, 06, 15));
 
   }
 
@@ -72,8 +74,35 @@ class MoviesClientTest {
         m -> m.info().year(),
         m -> m.info().releaseDate()
       )
-      .contains(1L, "Batman Begins", 2005, LocalDate.of(2005,06,15));
+      .contains(1L, "Batman Begins", 2005, LocalDate.of(2005, 06, 15));
 
   }
 
+  @RepeatedTest(1000)
+  @DisplayName("Should synchronous retrieve Movie Info by id list")
+  void test3() {
+
+    final var moviesClient = new MoviesClient(this.webClient);
+
+    final var movies = moviesClient.syncRetrieveMovies(List.of(1L, 2L, 3L, 4L, 5L));
+
+    Assertions.assertThat(movies)
+      .isNotNull()
+      .hasSize(5);
+
+  }
+
+  @RepeatedTest(1000)
+  @DisplayName("Should asynchronous retrieve Movie Info by id list")
+  void test4() {
+
+    final var moviesClient = new MoviesClient(this.webClient);
+
+    final var movies = moviesClient.asyncRetrieveMovies(List.of(1L, 2L, 3L, 4L, 5L));
+
+    Assertions.assertThat(movies)
+      .isNotNull()
+      .hasSize(5);
+
+  }
 }
