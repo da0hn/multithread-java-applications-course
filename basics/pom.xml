@@ -17,6 +17,7 @@
         <module>fork-join</module>
         <module>checkout-service</module>
         <module>completable-future-sandbox</module>
+        <module>movies-client</module>
     </modules>
 
 
