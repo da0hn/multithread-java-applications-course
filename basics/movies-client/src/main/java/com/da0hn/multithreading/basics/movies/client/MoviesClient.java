@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class MoviesClient {
@@ -34,7 +35,7 @@ public class MoviesClient {
     return movie;
   }
 
-  public Movie syncUntimedRetrieveMovie(final Long movieInfoId) {
+  private Movie syncUntimedRetrieveMovie(final Long movieInfoId) {
     final var movieInfo = this.syncInvokeMovieInfoService(movieInfoId);
     final var reviews = this.syncInvokeReviewService(movieInfoId);
 
@@ -73,12 +74,19 @@ public class MoviesClient {
   public List<Movie> asyncRetrieveMovies(final Collection<Long> movieInfoIds) {
     CommonUtil.startTimer();
 
-    final var movies = movieInfoIds.stream()
+    final var asyncMovies = movieInfoIds.stream()
       .map(this::retrieveFutureMovie)
-      .map(CompletableFuture::join)
       .toList();
 
+    final var asyncMoviesCompletion = CompletableFuture.allOf(asyncMovies.toArray(CompletableFuture[]::new));
+
+    final var movies = asyncMoviesCompletion.thenApply(ignoredValue -> asyncMovies.stream()
+      .map(CompletableFuture::join) // immediately join when allOf is done
+      .collect(Collectors.toList())
+    ).join();
+
     CommonUtil.timeElapsed();
+
     return movies;
   }
 
